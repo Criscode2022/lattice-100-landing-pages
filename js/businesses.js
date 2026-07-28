@@ -1,5 +1,5 @@
 /** Auto-generated catalog of 100 landing page definitions */
-window.LANDING_PAGES = [
+export const LANDING_PAGES = [
   {
     "id": 1,
     "slug": "hearth-grain",
@@ -4901,7 +4901,7 @@ window.LANDING_PAGES = [
     }
   }
 ];
-window.LANDING_CATEGORIES = [
+export const LANDING_CATEGORIES = [
   "Food & Beverage",
   "Health & Wellness",
   "Technology",
@@ -4923,7 +4923,7 @@ window.LANDING_CATEGORIES = [
   "Agriculture",
   "Logistics"
 ];
-window.LANDING_LAYOUTS = [
+export const LANDING_LAYOUTS = [
   "hero-split",
   "hero-centered",
   "hero-asymmetric",

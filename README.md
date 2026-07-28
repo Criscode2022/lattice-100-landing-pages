@@ -33,7 +33,7 @@ Then open `http://localhost:8080`.
 ## Stack constraints
 
 - HTML, CSS, and vanilla JS only
-- Three.js via CDN (`three@0.170.0`)
+- Three.js via CDN ES modules (`three@0.170.0`)
 - No React, no build step required
 
 ## Keyboard

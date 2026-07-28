@@ -1,8 +1,8 @@
-(function () {
-  "use strict";
+import { LANDING_PAGES, LANDING_CATEGORIES } from "./businesses.js";
+import { createScene } from "./three-scene.js";
 
-  const pages = window.LANDING_PAGES || [];
-  const categories = window.LANDING_CATEGORIES || [];
+  const pages = LANDING_PAGES || [];
+  const categories = LANDING_CATEGORIES || [];
 
   const grid = document.getElementById("card-grid");
   const empty = document.getElementById("empty-state");
@@ -22,8 +22,8 @@
 
   // Three.js background
   const canvas = document.getElementById("bg-canvas");
-  if (canvas && window.LatticeThree) {
-    window.LatticeThree.createScene(canvas, {
+  if (canvas) {
+    createScene(canvas, {
       mode: "lattice",
       accent: "#5eead4",
       accent2: "#2a6f7a",
@@ -161,10 +161,10 @@
 
   function escapeHtml(s) {
     return String(s)
-      .replace(/&/g, "&")
-      .replace(/</g, "<")
-      .replace(/>/g, ">")
-      .replace(/"/g, """);
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function escapeAttr(s) {
@@ -172,4 +172,3 @@
   }
 
   render();
-})();

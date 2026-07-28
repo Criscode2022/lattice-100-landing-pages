@@ -1,7 +1,7 @@
-(function () {
-  "use strict";
+import { LANDING_PAGES } from "./businesses.js";
+import { createScene } from "./three-scene.js";
 
-  const pages = window.LANDING_PAGES || [];
+  const pages = LANDING_PAGES || [];
   const root = document.getElementById("page-root");
   const loading = document.getElementById("loading");
 
@@ -18,9 +18,7 @@
         <p>This landing page does not exist.</p>
         <a class="lp-btn lp-btn-primary" href="index.html">Back to gallery</a>
       </div>`;
-    return;
-  }
-
+  } else {
   document.title = `${page.name} · Lattice`;
   applyPalette(page.palette);
   renderPage(page);
@@ -31,6 +29,7 @@
     loading?.classList.add("is-done");
     setTimeout(() => loading?.remove(), 450);
   });
+  }
 
   function applyPalette(pal) {
     const r = document.documentElement;
@@ -184,8 +183,8 @@
 
     // Three.js hero atmosphere
     const stage = document.getElementById("hero-stage");
-    if (stage && window.LatticeThree) {
-      window.LatticeThree.createScene(stage, {
+    if (stage) {
+      createScene(stage, {
         mode: p.scene,
         accent: p.palette.accent,
         accent2: p.palette.accent2,
@@ -250,9 +249,8 @@
 
   function esc(s) {
     return String(s)
-      .replace(/&/g, "&")
-      .replace(/</g, "<")
-      .replace(/>/g, ">")
-      .replace(/"/g, """);
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
-})();
