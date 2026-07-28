@@ -30,6 +30,12 @@ npx --yes serve -l 8080 .
 
 Then open `http://localhost:8080`.
 
+## Visual system
+
+- **Photography-first** landing layouts with a curated 16-image library mapped by category
+- **Subtle Three.js** accent (small hero orb only — not full-bleed backgrounds)
+- 10 layout systems, 20 palettes, modern product marketing UI
+
 ## Stack constraints
 
 - HTML, CSS, and vanilla JS only

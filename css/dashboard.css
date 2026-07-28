@@ -95,7 +95,7 @@ a {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.22;
 }
 
 .app {
@@ -496,18 +496,35 @@ a {
 }
 
 .card-swatch {
-  height: 96px;
+  height: 140px;
   position: relative;
   overflow: hidden;
+  background: var(--card-surface, var(--bg-subtle));
 }
 
-.card-swatch::after {
-  content: "";
+.card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 500ms var(--ease-out);
+}
+
+.card:hover .card-thumb {
+  transform: scale(1.05);
+}
+
+.card-swatch-fade {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 70% 30%, color-mix(in oklab, var(--card-accent) 45%, transparent), transparent 55%),
-    linear-gradient(160deg, var(--card-bg), var(--card-surface));
+    linear-gradient(180deg, transparent 40%, color-mix(in oklab, var(--card-bg, #000) 55%, transparent) 100%),
+    radial-gradient(circle at 80% 20%, color-mix(in oklab, var(--card-accent) 28%, transparent), transparent 50%);
+  pointer-events: none;
+}
+
+.card-swatch::after {
+  content: none;
 }
 
 .card-swatch-dots {
@@ -605,7 +622,7 @@ a {
 }
 
 .card-grid.is-list .card-swatch {
-  width: 120px;
+  width: 160px;
   min-height: 100%;
   height: auto;
   flex-shrink: 0;

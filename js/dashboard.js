@@ -1,5 +1,6 @@
 import { LANDING_PAGES, LANDING_CATEGORIES } from "./businesses.js";
 import { createScene } from "./three-scene.js";
+import { imagesForPage } from "./images.js";
 
   const pages = LANDING_PAGES || [];
   const categories = LANDING_CATEGORIES || [];
@@ -24,11 +25,12 @@ import { createScene } from "./three-scene.js";
   const canvas = document.getElementById("bg-canvas");
   if (canvas) {
     createScene(canvas, {
-      mode: "lattice",
+      mode: "particles",
       accent: "#5eead4",
       accent2: "#2a6f7a",
       bg: "#090a0c",
       interactive: true,
+      subtle: true,
     });
   }
 
@@ -136,6 +138,8 @@ import { createScene } from "./three-scene.js";
         return `
         <a class="card" href="landing.html?id=${p.id}" style="--card-bg:${p.palette.bg};--card-surface:${p.palette.surface};--card-accent:${p.palette.accent};animation-delay:${delay}ms">
           <div class="card-swatch">
+            <img class="card-thumb" src="${imagesForPage(p).hero}" alt="" loading="lazy" decoding="async" width="480" height="300" />
+            <div class="card-swatch-fade" aria-hidden="true"></div>
             <div class="card-swatch-dots" aria-hidden="true">
               <i style="background:${p.palette.accent}"></i>
               <i style="background:${p.palette.accent2}"></i>

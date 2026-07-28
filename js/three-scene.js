@@ -1,5 +1,5 @@
 /**
- * Lightweight Three.js atmosphere scenes for dashboard + landing pages.
+ * Subtle Three.js accents — small decorative scenes, never full-bleed heroes.
  */
 import * as THREE from "three";
 
@@ -31,20 +31,20 @@ function disposeObject(obj) {
 
 /**
  * @param {HTMLCanvasElement|HTMLElement} target
- * @param {{ mode?: string, accent?: string, accent2?: string, bg?: string, interactive?: boolean }} opts
+ * @param {{ mode?: string, accent?: string, accent2?: string, bg?: string, interactive?: boolean, subtle?: boolean }} opts
  */
 export function createScene(target, opts) {
   const options = opts || {};
   const mode = options.mode || "orbs";
+  const subtle = options.subtle !== false; // default subtle
   const accent = parseColor(options.accent, "#5eead4");
   const accent2 = parseColor(options.accent2, "#0d9488");
-  const bg = parseColor(options.bg, "#090a0c");
 
   let canvas = target;
   if (target && target.tagName !== "CANVAS") {
     canvas = document.createElement("canvas");
-    canvas.className = "lp-canvas";
-    target.prepend(canvas);
+    canvas.className = options.className || "lp-canvas";
+    target.appendChild(canvas);
   }
   if (!canvas) return { destroy() {} };
 
@@ -52,46 +52,45 @@ export function createScene(target, opts) {
     canvas,
     antialias: true,
     alpha: true,
-    powerPreference: "high-performance",
+    powerPreference: "low-power",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
-  camera.position.set(0, 0, 6);
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 50);
+  camera.position.set(0, 0, subtle ? 5.2 : 6);
 
   const root = new THREE.Group();
   scene.add(root);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.55);
-  scene.add(ambient);
-  const key = new THREE.DirectionalLight(0xffffff, 0.85);
-  key.position.set(3, 4, 5);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const key = new THREE.DirectionalLight(0xffffff, 0.55);
+  key.position.set(2, 3, 4);
   scene.add(key);
 
-  const meshes = [];
   const matAccent = new THREE.MeshStandardMaterial({
     color: accent,
-    metalness: 0.35,
-    roughness: 0.35,
+    metalness: 0.45,
+    roughness: 0.4,
     transparent: true,
-    opacity: 0.92,
+    opacity: subtle ? 0.55 : 0.85,
   });
   const matSoft = new THREE.MeshStandardMaterial({
     color: accent2,
-    metalness: 0.2,
-    roughness: 0.55,
+    metalness: 0.25,
+    roughness: 0.6,
     transparent: true,
-    opacity: 0.75,
+    opacity: subtle ? 0.4 : 0.7,
   });
   const matWire = new THREE.MeshBasicMaterial({
     color: accent,
     wireframe: true,
     transparent: true,
-    opacity: 0.35,
+    opacity: subtle ? 0.18 : 0.3,
   });
 
+  const meshes = [];
   function addMesh(geo, mat, pos, scale) {
     const m = new THREE.Mesh(geo, mat);
     if (pos) m.position.set(pos[0], pos[1], pos[2]);
@@ -101,18 +100,14 @@ export function createScene(target, opts) {
     return m;
   }
 
-  if (mode === "orbs") {
-    addMesh(new THREE.IcosahedronGeometry(1.1, 1), matAccent, [-1.2, 0.3, 0], 1);
-    addMesh(new THREE.SphereGeometry(0.55, 32, 32), matSoft, [1.4, -0.4, 0.5], 1);
-    addMesh(new THREE.SphereGeometry(0.28, 24, 24), matAccent, [0.4, 1.2, -0.6], 1);
-    addMesh(new THREE.TorusGeometry(1.6, 0.02, 12, 80), matWire, [0, 0, -0.5], 1);
-  } else if (mode === "particles") {
-    const count = 420;
+  // Simpler geometry sets when subtle
+  if (mode === "particles") {
+    const count = subtle ? 80 : 280;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 8;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 5;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 4;
+      positions[i * 3] = (Math.random() - 0.5) * 5;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 3.5;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 2.5;
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -120,80 +115,38 @@ export function createScene(target, opts) {
       geo,
       new THREE.PointsMaterial({
         color: accent,
-        size: 0.035,
+        size: subtle ? 0.028 : 0.035,
         transparent: true,
-        opacity: 0.85,
+        opacity: subtle ? 0.45 : 0.8,
         sizeAttenuation: true,
       })
     );
     root.add(pts);
     meshes.push(pts);
-    addMesh(new THREE.OctahedronGeometry(0.7, 0), matSoft, [0, 0, 0], 1);
-  } else if (mode === "waves") {
-    for (let i = 0; i < 5; i++) {
-      const torus = addMesh(
-        new THREE.TorusGeometry(0.9 + i * 0.35, 0.025, 10, 100),
-        i % 2 ? matWire : matAccent.clone(),
-        [0, 0, -i * 0.15],
-        1
-      );
-      torus.rotation.x = Math.PI / 2.4;
-      torus.userData.phase = i * 0.4;
-    }
-  } else if (mode === "geometry") {
-    addMesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), matAccent, [-1.1, 0.2, 0], 1);
-    addMesh(new THREE.DodecahedronGeometry(0.75, 0), matSoft, [1.2, -0.1, 0.3], 1);
-    addMesh(new THREE.ConeGeometry(0.45, 1.1, 5), matWire, [0.1, 1.0, -0.4], 1);
-    addMesh(new THREE.TetrahedronGeometry(0.5, 0), matAccent, [0.8, 1.1, 0.6], 1);
-  } else if (mode === "rings") {
-    for (let i = 0; i < 4; i++) {
+    addMesh(new THREE.IcosahedronGeometry(0.55, 0), matSoft, [0, 0, 0], 1);
+  } else if (mode === "waves" || mode === "rings") {
+    for (let i = 0; i < (subtle ? 2 : 4); i++) {
       const r = addMesh(
-        new THREE.TorusGeometry(1.1 + i * 0.25, 0.04, 12, 80),
-        i % 2 ? matSoft : matAccent,
+        new THREE.TorusGeometry(0.85 + i * 0.28, 0.02, 10, 64),
+        i % 2 ? matSoft : matWire,
         [0, 0, 0],
         1
       );
-      r.rotation.x = 0.6 + i * 0.15;
-      r.rotation.y = i * 0.4;
-      r.userData.spin = 0.15 + i * 0.05;
+      r.rotation.x = 0.7 + i * 0.12;
+      r.userData.spin = 0.08 + i * 0.03;
     }
-    addMesh(new THREE.SphereGeometry(0.35, 32, 32), matAccent, [0, 0, 0], 1);
-  } else if (mode === "lattice") {
-    const group = new THREE.Group();
-    const size = 3;
-    const step = 0.55;
-    for (let x = -size; x <= size; x++) {
-      for (let y = -size; y <= size; y++) {
-        if ((x + y) % 2 !== 0) continue;
-        const s = new THREE.Mesh(
-          new THREE.BoxGeometry(0.12, 0.12, 0.12),
-          Math.random() > 0.5 ? matAccent : matSoft
-        );
-        s.position.set(x * step * 0.55, y * step * 0.4, (Math.random() - 0.5) * 0.8);
-        group.add(s);
-        meshes.push(s);
-      }
-    }
-    root.add(group);
-    meshes.push(group);
+    addMesh(new THREE.SphereGeometry(0.22, 24, 24), matAccent, [0, 0, 0], 1);
+  } else if (mode === "geometry" || mode === "lattice") {
+    addMesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), matAccent, [-0.55, 0.1, 0], 1);
+    addMesh(new THREE.OctahedronGeometry(0.4, 0), matSoft, [0.65, -0.15, 0.2], 1);
+    addMesh(new THREE.TetrahedronGeometry(0.32, 0), matWire, [0.1, 0.7, -0.2], 1);
   } else {
-    addMesh(new THREE.IcosahedronGeometry(1.2, 1), matAccent, [0, 0, 0], 1);
+    // orbs default — quiet
+    addMesh(new THREE.IcosahedronGeometry(0.75, 1), matAccent, [-0.35, 0.1, 0], 1);
+    addMesh(new THREE.SphereGeometry(0.32, 24, 24), matSoft, [0.7, -0.25, 0.3], 1);
+    addMesh(new THREE.TorusGeometry(1.15, 0.015, 10, 64), matWire, [0, 0, -0.4], 1);
   }
 
-  const glow = new THREE.Mesh(
-    new THREE.CircleGeometry(3.2, 48),
-    new THREE.MeshBasicMaterial({
-      color: accent,
-      transparent: true,
-      opacity: 0.06,
-    })
-  );
-  glow.rotation.x = -Math.PI / 2;
-  glow.position.y = -1.6;
-  root.add(glow);
-
-  let w = 0;
-  let h = 0;
   let raf = 0;
   let destroyed = false;
   const clock = new THREE.Clock();
@@ -202,8 +155,8 @@ export function createScene(target, opts) {
   function resize() {
     const parent = canvas.parentElement || canvas;
     const rect = parent.getBoundingClientRect();
-    w = Math.max(1, Math.floor(rect.width || window.innerWidth));
-    h = Math.max(1, Math.floor(rect.height || window.innerHeight));
+    const w = Math.max(1, Math.floor(rect.width || 200));
+    const h = Math.max(1, Math.floor(rect.height || 200));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -220,29 +173,18 @@ export function createScene(target, opts) {
     if (destroyed) return;
     raf = requestAnimationFrame(tick);
     const t = clock.getElapsedTime();
-
     if (!prefersReduced) {
-      root.rotation.y = t * 0.12 + pointer.x * 0.25;
-      root.rotation.x = Math.sin(t * 0.2) * 0.08 + pointer.y * 0.15;
-
-      meshes.forEach((m, i) => {
-        if (m.isPoints) {
-          m.rotation.y = t * 0.05;
-          return;
-        }
-        if (m.userData && m.userData.spin) {
-          m.rotation.z = t * m.userData.spin;
-        }
-        if (m.userData && m.userData.phase != null) {
-          m.scale.setScalar(1 + Math.sin(t * 0.8 + m.userData.phase) * 0.04);
-        }
-        if (mode === "geometry" && m.isMesh) {
-          m.rotation.x = t * (0.1 + i * 0.03);
-          m.rotation.y = t * (0.15 + i * 0.02);
+      const speed = subtle ? 0.06 : 0.12;
+      root.rotation.y = t * speed + pointer.x * 0.12;
+      root.rotation.x = Math.sin(t * 0.15) * 0.05 + pointer.y * 0.08;
+      meshes.forEach((m) => {
+        if (m.isPoints) m.rotation.y = t * 0.03;
+        if (m.userData?.spin) m.rotation.z = t * m.userData.spin;
+        if (m.isMesh && (mode === "geometry" || mode === "lattice")) {
+          m.rotation.y = t * 0.1;
         }
       });
     }
-
     renderer.render(scene, camera);
   }
 
@@ -252,11 +194,8 @@ export function createScene(target, opts) {
     window.addEventListener("pointermove", onPointer, { passive: true });
   }
 
-  if (prefersReduced) {
-    renderer.render(scene, camera);
-  } else {
-    tick();
-  }
+  if (prefersReduced) renderer.render(scene, camera);
+  else tick();
 
   return {
     resize,
